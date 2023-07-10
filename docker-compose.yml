@@ -1,0 +1,33 @@
+version: "3"
+
+networks:
+  services_network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.19.128.32/27
+
+services:
+  postgresqldb:
+    container_name: data-base
+    image: postgres:15
+    environment:
+      POSTGRES_USER: "pgadm"
+      POSTGRES_PASSWORD: "qpwoei"
+      POSTGRES_DB: "formula1"
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./bd/postgresql/Dockerfile:/docker-entrypoint-initdb.d/Dockerfile
+      - ./bd/postgresql:/docker-entrypoint-initdb.d
+    networks:
+      - services_network
+
+  vue-service:
+    build:
+      context: ./frontend/project/
+    container_name: front
+    ports:
+      - "8080:8080"
+    networks:
+      - services_network
