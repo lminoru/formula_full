@@ -21,15 +21,17 @@
             <v-btn variant="outlined" @click="cadastrarPilotoInit">Cadastrar Piloto</v-btn>
         </v-card-actions>
 
+        <!-- Seção de checar/listar pilotos que correram pela escuderia [escuderia]-->
         <v-card-actions v-if="isEsc">
             <v-text-field variant="outlined" clearable label="Forename de piloto" v-model="forename_driver"></v-text-field>
             <v-btn variant="outlined" density="comfortable" class="ml-10 mb-5" @click="consultarPiloto">Consultar</v-btn>
         </v-card-actions>
 
+        <!-- listagem dos pilotos [escuderia] -->
         <v-data-table v-if="forenameFound" v-model:items-per-page="itemsPerPage" :headers="headers" :items="drivers"
             item-key="name" item-value="name" class="elevation-1"></v-data-table>
 
-        <!-- Seção de cadastro de escuderia -->
+        <!-- Seção de cadastro de escuderia [admin]-->
         <v-container v-if="insertInitEsc">
             <v-col>
                 <v-row rows="12" md="4">
@@ -111,8 +113,8 @@ export default {
             infos_api: null,
             itemsPerPage: 5,
             headers: [
-                { title: 'Nome Completo', align: 'start', key: 'name' },
-                { title: 'Data de Nascimento', align: 'end', key: 'bornDate' },
+                { title: 'Nome Completo', align: 'start', key: 'full_name' },
+                { title: 'Data de Nascimento', align: 'end', key: 'dob' },
                 { title: 'Nacionalidade', align: 'end', key: 'nationality' },
             ],
             forename_driver: "",
@@ -156,37 +158,9 @@ export default {
 
         },
         consultarPiloto() {
-            console.log("gggg");
-            //fazer req ao back
-            //passa o forename
-            //forename_driver
-            //drivers = response
-            this.forenameFound = true;
-            //else forenameFound = false;
-            this.drivers = [
-                {
-                    name: 'Frozen Yogurt',
-                    bornDate: '24/03/2022',
-                    nationality: 'French',
-                },
-                {
-                    name: 'Frozen Yogurt',
-                    bornDate: '24/03/2022',
-                    nationality: 'French',
-                }, {
-                    name: 'Frozen Yogurt',
-                    bornDate: '24/03/2022',
-                    nationality: 'French',
-                }, {
-                    name: 'Frozen Yogurt',
-                    bornDate: '24/03/2022',
-                    nationality: 'French',
-                }, {
-                    name: 'Frozen Yogurt',
-                    bornDate: '24/03/2022',
-                    nationality: 'French',
-                },
-            ];
+            axios.get('http://localhost:8090/piloto_correu_escuderia?constructor=' + this.$store.state.username + '&driver=' + this.forename_driver)
+                .then(response => (this.drivers = response.data))
+
         },
         cadastrarEscuderia() {
             //enviar req ao banco
@@ -239,6 +213,11 @@ export default {
                 }
             }
         },
+        drivers() {
+            if (this.drivers) {
+                this.forenameFound = true;
+            }
+        }
     },
 }
 </script>

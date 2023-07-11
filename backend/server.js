@@ -153,7 +153,7 @@ app.get('/piloto_correu_escuderia', async (req, res) => {
         const query = "SELECT * FROM check_existing_pilots($1, $2);"
         const result = await pool.query(query, [constructor, driver])
 
-        res.status(200).json(result.rows[0])
+        res.status(200).json(result.rows)
 
     } catch (error) {
         console.error('Erro ao obter dados do banco de dados', error);

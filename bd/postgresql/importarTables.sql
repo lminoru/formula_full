@@ -650,3 +650,33 @@ BEGIN
     RETURN NEXT;
 END;
 $$ LANGUAGE plpgsql;
+
+--tela2: checa se o piloto ja correu pela escuderia
+CREATE OR REPLACE FUNCTION check_existing_pilots(escuderia_ref TEXT, pilot_forename TEXT)
+RETURNS TABLE (
+    full_name TEXT,
+    dob DATE,
+    nationality TEXT
+)
+AS $$
+BEGIN
+    RETURN QUERY
+    SELECT DISTINCT ON (d.DriverId)
+        CONCAT(d.Forename, ' ', d.Surname) AS full_name,
+        d.Dob,
+        d.Nationality
+    FROM
+        Driver d
+    INNER JOIN
+        Results r ON d.DriverId = r.DriverId
+    INNER JOIN
+        Constructors c ON r.ConstructorId = c.ConstructorId
+    WHERE
+        d.Forename = pilot_forename
+        AND c.ConstructorRef = escuderia_ref
+    ORDER BY
+        d.DriverId;
+    
+    RETURN;
+END;
+$$ LANGUAGE plpgsql;
