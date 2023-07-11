@@ -80,7 +80,7 @@ app.get('/log', async (req, res) => {
 })
 
 // Rota para obter quantidade de pilotos, escuderias, corridas e temporadas
-app.get('path_da_rota', async (req, res) => { // TODO - adicionar path da rota
+app.get('/quantidades_geral', async (req, res) => {
     try {
 
         const username = req.query.username
@@ -97,7 +97,7 @@ app.get('path_da_rota', async (req, res) => { // TODO - adicionar path da rota
 })
 
 // Rota para obter quantidade de vitórias e pilotos de uma escuderia, além do primeiro e último ano
-app.get('path_da_rota', async (req, res) => { // TODO - adicionar path da rota
+app.get('/informacoes_escuderia', async (req, res) => {
     try {
 
         const constructor = req.query.constructor
@@ -114,7 +114,7 @@ app.get('path_da_rota', async (req, res) => { // TODO - adicionar path da rota
 })
 
 // Rota para obter informações do piloto, como quantidade de vitórias, primeiro e último ano
-app.get('path_da_rota', async (req, res) => { // TODO - adicionar path da rota
+app.get('/informacoes_piloto', async (req, res) => {
     try {
 
         const driver = req.query.driver
@@ -131,7 +131,7 @@ app.get('path_da_rota', async (req, res) => { // TODO - adicionar path da rota
 })
 
 // Rota para inserção de pilotos
-app.post('path_da_rota', async (req, res) => { // TODO - adicionar path da rota
+app.post('/inserir_piloto', async (req, res) => {
     try {
 
         const driverref = req.query.driverref
@@ -154,7 +154,7 @@ app.post('path_da_rota', async (req, res) => { // TODO - adicionar path da rota
 })
 
 // Rota para inserção de construtores
-app.post('path_da_rota', async (req, res) => { // TODO - adicionar path da rota
+app.post('/inserir_escuderia', async (req, res) => {
     try {
 
         const constructorref = req.query.constructorref
