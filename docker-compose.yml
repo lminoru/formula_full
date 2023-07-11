@@ -12,9 +12,7 @@ services:
     container_name: data-base
     image: postgres:15
     environment:
-      POSTGRES_USER: "pgadm"
-      POSTGRES_PASSWORD: "qpwoei"
-      POSTGRES_DB: "formula1"
+      POSTGRES_PASSWORD: "app"
     ports:
       - "5432:5432"
     volumes:
@@ -29,5 +27,14 @@ services:
     container_name: front
     ports:
       - "8080:8080"
+    networks:
+      - services_network
+
+  node-service:
+    build:
+      context: ./backend/
+    container_name: back
+    ports:
+      - "8090:8090"
     networks:
       - services_network
