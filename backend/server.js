@@ -2,6 +2,16 @@ const express = require('express');
 const app = express();
 const { Pool } = require('pg');
 
+app.use((req, res, next) => {
+    // Configurar cabeçalhos de resposta para permitir solicitações de qualquer origem
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+
+    // Passar para o próximo middleware
+    next();
+})
+
 // Configuração do banco de dados PostgreSQL
 const pool = new Pool({
     user: 'postgres',
@@ -20,7 +30,7 @@ app.get('/login', async (req, res) => {
         const password = req.query.password
         const result = await pool.query(query, [username, password]);
 
-        res.status(200).json(result.rows)
+        res.status(200).json(result.rows[0])
 
     } catch (error) {
         console.error('Erro ao obter dados do banco de dados', error);
@@ -29,11 +39,11 @@ app.get('/login', async (req, res) => {
     }
 })
 
-app.get('/teste', async (req, res) => {
+app.get('/users', async (req, res) => {
 
     try {
 
-        const query = 'SELECT * FROM Driver';
+        const query = 'SELECT * FROM Users';
         const result = await pool.query(query);
 
         res.status(200).json(result.rows)
