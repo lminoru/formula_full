@@ -29,12 +29,11 @@ services:
       - "8080:8080"
     networks:
       - services_network
-
-  node-service:
-    build:
-      context: ./backend/
-    container_name: back
-    ports:
-      - "8090:8090"
-    networks:
-      - services_network
+  # node-service:
+  #   build:
+  #     context: ./backend/
+  #   container_name: back
+  #   ports:
+  #     - "8090:8090"
+  #   networks:
+  #     - services_network
