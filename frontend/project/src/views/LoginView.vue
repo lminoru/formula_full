@@ -48,7 +48,7 @@ export default {
     },
     async BackendValidate() {
       axios
-        .get('http://localhost:5000/login?username=' + this.username + '&password=' + this.password)
+        .get('http://localhost:8090/login?username=' + this.username + '&password=' + this.password)
         .then(response => (this.response = response.data))
     }
   },
@@ -59,6 +59,7 @@ export default {
         // Por exemplo, fazer uma solicitação ao servidor para verificar as credenciais
         // Simulando uma resposta bem-sucedida
         const token = this.response.tipo;
+
         this.$store.commit('login', token)
 
         this.loading = false;
