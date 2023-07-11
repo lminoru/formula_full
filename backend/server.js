@@ -22,13 +22,14 @@ const pool = new Pool({
 });
 
 app.get('/login', async (req, res) => {
-
     try {
-
         const query = 'SELECT * FROM Users WHERE login = $1 and password = md5($2)';
+        const query2 = 'SELECT registrar_log_por_usuario($1);';
         const username = req.query.username
         const password = req.query.password
         const result = await pool.query(query, [username, password]);
+
+        await pool.query(query2, [username]);
 
         res.status(200).json(result.rows[0])
 
@@ -40,10 +41,34 @@ app.get('/login', async (req, res) => {
 })
 
 app.get('/users', async (req, res) => {
-
     try {
-
         const query = 'SELECT * FROM Users';
+        const result = await pool.query(query);
+
+        res.status(200).json(result.rows)
+
+    } catch (error) {
+        console.error('Erro ao obter dados do banco de dados', error);
+        res.status(500).json({ error: 'Erro ao obter dados do banco de dados' });
+    }
+})
+
+app.get('/pilotos', async (req, res) => {
+    try {
+        const query = 'SELECT * FROM Driver';
+        const result = await pool.query(query);
+
+        res.status(200).json(result.rows)
+
+    } catch (error) {
+        console.error('Erro ao obter dados do banco de dados', error);
+        res.status(500).json({ error: 'Erro ao obter dados do banco de dados' });
+    }
+})
+
+app.get('/log', async (req, res) => {
+    try {
+        const query = 'SELECT * FROM LogTable';
         const result = await pool.query(query);
 
         res.status(200).json(result.rows)
