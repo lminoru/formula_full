@@ -98,6 +98,7 @@
 </template>
 
 <script setup>
+import axios from 'axios';
 import { VDataTable } from 'vuetify/labs/VDataTable'
 </script>
   
@@ -107,6 +108,7 @@ export default {
         return {
             username: "",
             infos: [],
+            infos_api: null,
             itemsPerPage: 5,
             headers: [
                 { title: 'Nome Completo', align: 'start', key: 'name' },
@@ -125,40 +127,7 @@ export default {
     },
     mounted() {
         // receber dados do back
-
-        this.username = this.$store.state.username;
-        console.log("mounted:");
-        console.log("store.username:", this.$store.state.username);
-        console.log("store.token:", this.$store.state.token);
-
-        switch (this.$store.state.token) {
-            case 'Administrador':
-                this.infos = [
-                    { title: "Quantidade de pilotos cadastrados", content: '20' },
-                    { title: "Quantidade de escuderias cadastradas", content: '12' },
-                    { title: "Quantidade de corridas cadastradas", content: '48' },
-                    { title: "Quantidade e de temporadas (seasons) cadastradas", content: '3' }
-                ];
-                break;
-            case 'Escuderia':
-                this.infos = [
-                    { title: "Quantidade de vitórias da escuderia", content: '20' },
-                    { title: "Quantidade de pilotos diferentes que já correram pela escuderia", content: '12' },
-                    { title: "Primeiro ano em que há dados da escuderia na base", content: '2000' },
-                    { title: "Úlltimo ano em que há dados da escuderia na base", content: '2018' }
-                ];
-                break;
-            case 'Piloto':
-                this.infos = [
-                    { title: "Quantidade de vitórias da escuderia", content: '20' },
-                    { title: "Primeiro ano em que há dados do piloto na base", content: '2001' },
-                    { title: "Último ano em que há dados do piloto na base", content: '2019' },
-                ];
-                break;
-            default:
-                break;
-
-        }
+        this.carregarInfos();
     },
     computed: {
         isAdm() {
@@ -169,6 +138,23 @@ export default {
         }
     },
     methods: {
+        carregarInfos() {
+            console.log(this.$store.state.token);
+            if (this.isAdm) {
+                axios.get('http://localhost:8090/quantidades_geral?username=' + this.$store.state.username)
+                    .then(response => (this.infos_api = response.data))
+            }
+            else if (this.isEsc) {
+                axios.get('http://localhost:8090/informacoes_escuderia?constructor=' + this.$store.state.username)
+                    .then(response => (this.infos_api = response.data))
+            }
+            else {
+                axios.get('http://localhost:8090/informacoes_piloto?driver=' + this.$store.state.username)
+                    .then(response => (this.infos_api = response.data))
+            }
+
+
+        },
         consultarPiloto() {
             console.log("gggg");
             //fazer req ao back
@@ -216,7 +202,44 @@ export default {
         cadastrarPilotoInit() {
             this.insertInitDri = true;
         }
-    }
+    },
+    watch: {
+        infos_api() {
+            if (this.infos_api) {
+                switch (this.$store.state.token) {
+                    case 'Administrador':
+                        this.username = 'Admin';
+                        this.infos = [
+                            { title: "Quantidade de pilotos cadastrados", content: this.infos_api['quantidade_pilotos'] },
+                            { title: "Quantidade de escuderias cadastradas", content: this.infos_api['quantidade_escuderias'] },
+                            { title: "Quantidade de corridas cadastradas", content: this.infos_api['quantidade_corridas'] },
+                            { title: "Quantidade e de temporadas (seasons) cadastradas", content: this.infos_api['quantidade_temporadas'] }
+                        ];
+                        break;
+                    case 'Escuderia':
+                        this.username = this.infos_api['escuderia_nome'];
+                        this.infos = [
+                            { title: "Quantidade de vitórias da escuderia", content: this.infos_api['quantidade_vitorias'] },
+                            { title: "Quantidade de pilotos diferentes que já correram pela escuderia", content: this.infos_api['quantidade_pilotos'] },
+                            { title: "Primeiro ano em que há dados da escuderia na base", content: this.infos_api['primeiro_ano'] },
+                            { title: "Úlltimo ano em que há dados da escuderia na base", content: this.infos_api['ultimo_ano'] }
+                        ];
+                        break;
+                    case 'Piloto':
+                        this.username = this.infos_api['forename'] + " " + this.infos_api['surname'];
+                        this.infos = [
+                            { title: "Quantidade de vitórias da escuderia", content: this.infos_api['quantidade_vitorias'] },
+                            { title: "Primeiro ano em que há dados do piloto na base", content: this.infos_api['primeiro_ano'] },
+                            { title: "Último ano em que há dados do piloto na base", content: this.infos_api['ultimo_ano'] },
+                        ];
+                        break;
+                    default:
+                        break;
+
+                }
+            }
+        },
+    },
 }
 </script>
 

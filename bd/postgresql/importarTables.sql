@@ -586,9 +586,9 @@ RETURNS TABLE (
 ) AS $$
 BEGIN
     IF EXISTS (SELECT 1 FROM USERS WHERE Login = nome_usuario AND Tipo = 'Administrador') THEN
-        SELECT COUNT() INTO quantidade_pilotos FROM Driver;
-        SELECT COUNT() INTO quantidade_escuderias FROM Constructors;
-        SELECT COUNT() INTO quantidade_corridas FROM Races;
+        SELECT COUNT(*) INTO quantidade_pilotos FROM Driver;
+        SELECT COUNT(*) INTO quantidade_escuderias FROM Constructors;
+        SELECT COUNT(*) INTO quantidade_corridas FROM Races;
         SELECT COUNT(DISTINCT year) INTO quantidade_temporadas FROM Seasons;
         RETURN NEXT;
     ELSE
@@ -596,5 +596,57 @@ BEGIN
     END IF;
 
     RETURN;
+END;
+$$ LANGUAGE plpgsql;
+
+--tela2: quantidades escuderia
+DROP FUNCTION IF EXISTS obter_informacoes_escuderia(nome_escuderia TEXT);
+CREATE OR REPLACE FUNCTION obter_informacoes_escuderia(nome_escuderia TEXT)
+RETURNS TABLE (
+    escuderia_nome TEXT,
+    quantidade_vitorias INTEGER,
+    quantidade_pilotos INTEGER,
+    primeiro_ano INTEGER,
+    ultimo_ano INTEGER
+) AS $$
+BEGIN
+    SELECT c.Name AS escuderia_nome,
+    	   COUNT(*) AS quantidade_vitorias,
+           COUNT(DISTINCT driverid) AS quantidade_pilotos,
+           (SELECT MIN(year) FROM Races WHERE raceid = ANY (SELECT raceid FROM Results WHERE constructorid = (SELECT constructorid FROM Constructors WHERE constructorref = nome_escuderia))) AS primeiro_ano,
+           (SELECT MAX(year) FROM Races WHERE raceid = ANY (SELECT raceid FROM Results WHERE constructorid = (SELECT constructorid FROM Constructors WHERE constructorref = nome_escuderia))) AS ultimo_ano
+    INTO escuderia_nome, quantidade_vitorias, quantidade_pilotos, primeiro_ano, ultimo_ano
+    FROM Results r
+	INNER JOIN Constructors c ON r.constructorid = c.ConstructorId
+	WHERE c.constructorref = nome_escuderia
+	GROUP BY c.Name;
+
+    RETURN NEXT;
+END;
+$$ LANGUAGE plpgsql;
+
+--tela2: quantidades piloto
+DROP FUNCTION IF EXISTS obter_informacoes_piloto(driver_ref TEXT);
+CREATE OR REPLACE FUNCTION obter_informacoes_piloto(driver_ref TEXT)
+RETURNS TABLE (
+    forename TEXT,
+    surname TEXT,
+    quantidade_vitorias INTEGER,
+    primeiro_ano INTEGER,
+    ultimo_ano INTEGER
+) AS $$
+BEGIN
+    SELECT d.Forename, d.Surname,
+           COUNT(*) AS quantidade_vitorias,
+           MIN(r.Year) AS primeiro_ano,
+           MAX(r.Year) AS ultimo_ano
+    INTO forename, surname, quantidade_vitorias, primeiro_ano, ultimo_ano
+    FROM Results rs
+    INNER JOIN Races r ON rs.RaceId = r.RaceId
+    INNER JOIN Driver d ON rs.DriverId = d.DriverId
+    WHERE d.DriverRef = driver_ref
+    GROUP BY d.Forename, d.Surname;
+
+    RETURN NEXT;
 END;
 $$ LANGUAGE plpgsql;

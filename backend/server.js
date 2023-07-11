@@ -98,10 +98,10 @@ app.get('/quantidades_geral', async (req, res) => {
 
         const username = req.query.username
 
-        const query = "SELECT FROM obter_quantidades($1);"
+        const query = "SELECT * FROM obter_quantidades($1);"
         const result = await pool.query(query, [username])
 
-        res.status(200).json(result.rows)
+        res.status(200).json(result.rows[0])
 
     } catch (error) {
         console.error('Erro ao obter dados do banco de dados', error);
@@ -115,10 +115,10 @@ app.get('/informacoes_escuderia', async (req, res) => {
 
         const constructor = req.query.constructor
 
-        const query = "SELECT FROM obter_informacoes_escuderia($1);"
+        const query = "SELECT * FROM obter_informacoes_escuderia($1);"
         const result = await pool.query(query, [constructor])
 
-        res.status(200).json(result.rows)
+        res.status(200).json(result.rows[0])
 
     } catch (error) {
         console.error('Erro ao obter dados do banco de dados', error);
@@ -132,10 +132,10 @@ app.get('/informacoes_piloto', async (req, res) => {
 
         const driver = req.query.driver
 
-        const query = "SELECT FROM obter_informacoes_piloto($1);"
+        const query = "SELECT * FROM obter_informacoes_piloto($1);"
         const result = await pool.query(query, [driver])
 
-        res.status(200).json(result.rows)
+        res.status(200).json(result.rows[0])
 
     } catch (error) {
         console.error('Erro ao obter dados do banco de dados', error);
