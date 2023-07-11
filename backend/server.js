@@ -143,14 +143,17 @@ app.get('/informacoes_piloto', async (req, res) => {
     }
 })
 
-// Rota para gerar relatório de estados e da quantidade de estados que ela possui
-app.get('/relatorio_estados', async (req, res) => {
+// Rota para verificar se piloto já correu por determinada escuderia
+app.get('/piloto_correu_escuderia', async (req, res) => {
     try {
 
-        const query = "SELECT s.Status, COUNT(*) AS Count FROM Results r INNER JOIN Status s ON r.StatusId = s.StatusId GROUP BY s.Status;"
-        const result = await pool.query(query)
+        const constructor = req.query.constructor
+        const driver = req.query.driver
 
-        res.status(200).json(result.rows)
+        const query = "SELECT * FROM check_existing_pilots($1, $2);"
+        const result = await pool.query(query, [constructor, driver])
+
+        res.status(200).json(result.rows[0])
 
     } catch (error) {
         console.error('Erro ao obter dados do banco de dados', error);
@@ -198,6 +201,21 @@ app.post('/inserir_escuderia', async (req, res) => {
     } catch (error) {
         console.error('Erro ao inserir dados no banco de dados', error);
         res.status(500).json({ error: 'Erro ao inserir dados no banco de dados' });
+    }
+})
+
+// Rota para gerar relatório de estados e da quantidade de estados que ela possui
+app.get('/relatorio_estados', async (req, res) => {
+    try {
+
+        const query = "SELECT s.Status, COUNT(*) AS Count FROM Results r INNER JOIN Status s ON r.StatusId = s.StatusId GROUP BY s.Status;"
+        const result = await pool.query(query)
+
+        res.status(200).json(result.rows)
+
+    } catch (error) {
+        console.error('Erro ao obter dados do banco de dados', error);
+        res.status(500).json({ error: 'Erro ao obter dados do banco de dados' });
     }
 })
 
