@@ -64,7 +64,7 @@ CREATE TABLE IF NOT EXISTS LogTable (
     login_time TIME
     );
 
--- Exemplo de inserção na tabela USERS
+-- Adiciona admin
 INSERT INTO USERS (Login, Password, Tipo, IdOriginal)VALUES ('admin', md5('admin'), 'Administrador', 1);
 
 --== Formula 1
@@ -416,3 +416,185 @@ CREATE VIEW Tables AS
     SELECT 'GeoCities15K'         AS Table, Count(*) NroTuplas FROM GeoCities15K;
 
 Table Tables;
+
+
+-- Adiciona todos os pilotos como usuarios
+INSERT INTO USERS (Login, Password, Tipo, IdOriginal)
+SELECT DriverRef, md5(DriverRef), 'Piloto', DriverId
+FROM Driver;
+
+-- Adiciona todas as escuderias como usuarios
+INSERT INTO USERS (Login, Password, Tipo, IdOriginal)
+SELECT ConstructorRef, md5(Name), 'Escuderia', ConstructorId
+FROM Constructors;
+
+
+--- FUNCÇÕES TRIGGERS
+-- Função que verifica se o usuário a ser cadastrado já existe na tabela USERS
+CREATE OR REPLACE FUNCTION verificar_usuario_piloto_existente()
+RETURNS TRIGGER AS $$
+BEGIN
+    -- Verifica se já existe um usuário com o login informado na tabela USERS
+    IF EXISTS (
+        SELECT 1
+        FROM USERS
+        WHERE Login = NEW.DriverRef
+    ) THEN
+        -- Lança uma exceção personalizada e cancela a inserção na tabela USERS
+        RAISE EXCEPTION 'Já existe um usuário com o login informado.';
+    ELSE
+        -- Se não houver usuário com o login informado, prossegue com a inserção
+        RETURN NEW;
+    END IF;
+END;
+$$ LANGUAGE plpgsql;
+
+
+
+
+-- Função que verifica se o usuário a ser cadastrado já existe na tabela USERS
+CREATE OR REPLACE FUNCTION verificar_usuario_escuderia_existente()
+RETURNS TRIGGER AS $$
+BEGIN
+    -- Verifica se já existe um usuário com o login informado na tabela USERS
+    IF EXISTS (
+        SELECT 1
+        FROM USERS
+        WHERE Login = NEW.Constructorref
+    ) THEN
+        -- Lança uma exceção personalizada e cancela a inserção na tabela USERS
+        RAISE EXCEPTION 'Já existe um usuário com o login informado.';
+    ELSE
+        -- Se não houver usuário com o login informado, prossegue com a inserção
+        RETURN NEW;
+    END IF;
+END;
+$$ LANGUAGE plpgsql;
+
+
+
+
+
+-- Função para inserir ou atualizar o registro do piloto na tabela USERS
+CREATE OR REPLACE FUNCTION inserir_atualizar_usuario_piloto()
+RETURNS TRIGGER AS $$
+BEGIN
+    PERFORM verificar_usuario_piloto_existente(); -- Chama a função de verificação antes de prosseguir
+
+    IF TG_OP = 'INSERT' THEN
+        INSERT INTO USERS (Login, Password, Tipo, IdOriginal)
+        VALUES (NEW.DriverRef, md5(NEW.DriverRef), 'Piloto', NEW.DriverId);
+    ELSIF TG_OP = 'UPDATE' THEN
+        UPDATE USERS
+        SET Login = NEW.DriverRef,
+            Password = md5(NEW.DriverRef)
+        WHERE IdOriginal = NEW.DriverId AND Tipo = 'Piloto';
+    END IF;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+
+
+
+
+-- Função para inserir ou atualizar o registro da escuderia na tabela USERS
+CREATE OR REPLACE FUNCTION inserir_atualizar_usuario_escuderia()
+RETURNS TRIGGER AS $$
+BEGIN
+    PERFORM verificar_usuario_escuderia_existente(); -- Chama a função de verificação antes de prosseguir
+    
+    IF TG_OP = 'INSERT' THEN
+        INSERT INTO USERS (Login, Password, Tipo, IdOriginal)
+        VALUES (NEW.Constructorref, md5(NEW.Constructorref), 'Escuderia', NEW.ConstructorId);
+    ELSIF TG_OP = 'UPDATE' THEN
+        UPDATE USERS
+        SET Login = NEW.Constructorref,
+            Password = md5(NEW.Constructorref)
+        WHERE IdOriginal = NEW.ConstructorId AND Tipo = 'Escuderia';
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+
+
+
+
+-- Gatilho para inserções na tabela DRIVER que irá adicionar
+-- automaticamente um registro correspondente na tabela USERS
+CREATE OR REPLACE TRIGGER trigger_inserir_usuario_piloto
+AFTER INSERT ON Driver
+FOR EACH ROW
+EXECUTE FUNCTION inserir_atualizar_usuario_piloto();
+
+-- Gatilho para atualizações na tabela DRIVER que irá atualizar
+-- automaticamente um registro correspondente na tabela USERS
+CREATE OR REPLACE TRIGGER trigger_atualizar_usuario_piloto
+AFTER UPDATE ON Driver
+FOR EACH ROW
+EXECUTE FUNCTION inserir_atualizar_usuario_piloto();
+
+
+
+
+
+-- Gatilho para inserções na tabela CONSTRUCTORS que irá adicionar
+-- automaticamente um registro correspondente na tabela USERS
+CREATE OR REPLACE TRIGGER trigger_inserir_usuario_escuderia
+AFTER INSERT ON Constructors
+FOR EACH ROW
+EXECUTE FUNCTION inserir_atualizar_usuario_escuderia();
+
+-- Gatilho para atualizações na tabela CONSTRUCTORS que irá atualizar
+-- automaticamente um registro correspondente na tabela USERS
+CREATE OR REPLACE TRIGGER trigger_atualizar_usuario_escuderia
+AFTER UPDATE ON Constructors
+FOR EACH ROW
+EXECUTE FUNCTION inserir_atualizar_usuario_escuderia();
+
+
+
+
+CREATE OR REPLACE FUNCTION registrar_log_por_usuario(p_nome_usuario VARCHAR(255))
+RETURNS VOID AS $$
+DECLARE
+    id_usuario INTEGER;
+BEGIN
+    -- Obtém o ID do usuário com base no nome fornecido
+    SELECT Userid INTO id_usuario
+    FROM USERS
+    WHERE Login = p_nome_usuario;
+
+    -- Registra o log na tabela LOGTABLE
+    INSERT INTO LogTable (UserId, Login_date, Login_time)
+    VALUES (id_usuario, CURRENT_DATE, CURRENT_TIME);
+
+    RETURN;
+END;
+$$ LANGUAGE plpgsql;
+
+
+--tela2: quantidades admin
+CREATE OR REPLACE FUNCTION obter_quantidades(nome_usuario VARCHAR)
+RETURNS TABLE (
+    quantidade_pilotos INTEGER,
+    quantidade_escuderias INTEGER,
+    quantidade_corridas INTEGER,
+    quantidade_temporadas INTEGER
+) AS $$
+BEGIN
+    IF EXISTS (SELECT 1 FROM USERS WHERE Login = nome_usuario AND Tipo = 'Administrador') THEN
+        SELECT COUNT() INTO quantidade_pilotos FROM Driver;
+        SELECT COUNT() INTO quantidade_escuderias FROM Constructors;
+        SELECT COUNT() INTO quantidade_corridas FROM Races;
+        SELECT COUNT(DISTINCT year) INTO quantidade_temporadas FROM Seasons;
+        RETURN NEXT;
+    ELSE
+        RAISE EXCEPTION 'Usuário não é um administrador.';
+    END IF;
+
+    RETURN;
+END;
+$$ LANGUAGE plpgsql;
