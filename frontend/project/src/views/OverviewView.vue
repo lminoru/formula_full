@@ -1,7 +1,7 @@
 <template>
     <v-card width="800" class="mx-auto">
         <v-card-title>
-            Bem vindaa, {{ username }}
+            Bem vindo, {{ username }}
         </v-card-title>
 
         <v-divider class="mb-4"></v-divider>

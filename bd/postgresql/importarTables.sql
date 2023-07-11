@@ -425,7 +425,7 @@ FROM Driver;
 
 -- Adiciona todas as escuderias como usuarios
 INSERT INTO USERS (Login, Password, Tipo, IdOriginal)
-SELECT ConstructorRef, md5(Name), 'Escuderia', ConstructorId
+SELECT ConstructorRef, md5(ConstructorRef), 'Escuderia', ConstructorId
 FROM Constructors;
 
 

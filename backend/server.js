@@ -66,6 +66,19 @@ app.get('/pilotos', async (req, res) => {
     }
 })
 
+app.get('/escuderias', async (req, res) => {
+    try {
+        const query = 'SELECT * FROM constructors';
+        const result = await pool.query(query);
+
+        res.status(200).json(result.rows)
+
+    } catch (error) {
+        console.error('Erro ao obter dados do banco de dados', error);
+        res.status(500).json({ error: 'Erro ao obter dados do banco de dados' });
+    }
+})
+
 app.get('/log', async (req, res) => {
     try {
         const query = 'SELECT * FROM LogTable';
@@ -90,9 +103,9 @@ app.get('/quantidades_geral', async (req, res) => {
 
         res.status(200).json(result.rows)
 
-    } catch(error) {
+    } catch (error) {
         console.error('Erro ao obter dados do banco de dados', error);
-        res.status(500).json({error: 'Erro ao obter dados do banco de dados'});
+        res.status(500).json({ error: 'Erro ao obter dados do banco de dados' });
     }
 })
 
@@ -107,9 +120,9 @@ app.get('/informacoes_escuderia', async (req, res) => {
 
         res.status(200).json(result.rows)
 
-    } catch(error) {
+    } catch (error) {
         console.error('Erro ao obter dados do banco de dados', error);
-        res.status(500).json({error: 'Erro ao obter dados do banco de dados'});
+        res.status(500).json({ error: 'Erro ao obter dados do banco de dados' });
     }
 })
 
@@ -124,9 +137,9 @@ app.get('/informacoes_piloto', async (req, res) => {
 
         res.status(200).json(result.rows)
 
-    } catch(error) {
+    } catch (error) {
         console.error('Erro ao obter dados do banco de dados', error);
-        res.status(500).json({error: 'Erro ao obter dados do banco de dados'});
+        res.status(500).json({ error: 'Erro ao obter dados do banco de dados' });
     }
 })
 
@@ -147,9 +160,9 @@ app.post('/inserir_piloto', async (req, res) => {
 
         res.status(200).json(result.rows)
 
-    } catch(error) {
+    } catch (error) {
         console.error('Erro ao inserir dados no banco de dados', error);
-        res.status(500).json({error: 'Erro ao inserir dados no banco de dados'});
+        res.status(500).json({ error: 'Erro ao inserir dados no banco de dados' });
     }
 })
 
@@ -167,9 +180,9 @@ app.post('/inserir_escuderia', async (req, res) => {
 
         res.status(200).json(result.rows)
 
-    } catch(error) {
+    } catch (error) {
         console.error('Erro ao inserir dados no banco de dados', error);
-        res.status(500).json({error: 'Erro ao inserir dados no banco de dados'});
+        res.status(500).json({ error: 'Erro ao inserir dados no banco de dados' });
     }
 })
 
