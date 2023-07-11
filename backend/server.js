@@ -143,6 +143,21 @@ app.get('/informacoes_piloto', async (req, res) => {
     }
 })
 
+// Rota para gerar relatório de estados e da quantidade de estados que ela possui
+app.get('/relatorio_estados', async (req, res) => {
+    try {
+
+        const query = "SELECT s.Status, COUNT(*) AS Count FROM Results r INNER JOIN Status s ON r.StatusId = s.StatusId GROUP BY s.Status;"
+        const result = await pool.query(query)
+
+        res.status(200).json(result.rows)
+
+    } catch (error) {
+        console.error('Erro ao obter dados do banco de dados', error);
+        res.status(500).json({ error: 'Erro ao obter dados do banco de dados' });
+    }
+})
+
 // Rota para inserção de pilotos
 app.post('/inserir_piloto', async (req, res) => {
     try {
