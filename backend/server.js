@@ -79,6 +79,100 @@ app.get('/log', async (req, res) => {
     }
 })
 
+// Rota para obter quantidade de pilotos, escuderias, corridas e temporadas
+app.get('path_da_rota', async (req, res) => { // TODO - adicionar path da rota
+    try {
+
+        const username = req.query.username
+
+        const query = "SELECT FROM obter_quantidades($1);"
+        const result = await pool.query(query, [username])
+
+        res.status(200).json(result.rows)
+
+    } catch(error) {
+        console.error('Erro ao obter dados do banco de dados', error);
+        res.status(500).json({error: 'Erro ao obter dados do banco de dados'});
+    }
+})
+
+// Rota para obter quantidade de vitórias e pilotos de uma escuderia, além do primeiro e último ano
+app.get('path_da_rota', async (req, res) => { // TODO - adicionar path da rota
+    try {
+
+        const constructor = req.query.constructor
+
+        const query = "SELECT FROM obter_informacoes_escuderia($1);"
+        const result = await pool.query(query, [constructor])
+
+        res.status(200).json(result.rows)
+
+    } catch(error) {
+        console.error('Erro ao obter dados do banco de dados', error);
+        res.status(500).json({error: 'Erro ao obter dados do banco de dados'});
+    }
+})
+
+// Rota para obter informações do piloto, como quantidade de vitórias, primeiro e último ano
+app.get('path_da_rota', async (req, res) => { // TODO - adicionar path da rota
+    try {
+
+        const driver = req.query.driver
+
+        const query = "SELECT FROM obter_informacoes_piloto($1);"
+        const result = await pool.query(query, [driver])
+
+        res.status(200).json(result.rows)
+
+    } catch(error) {
+        console.error('Erro ao obter dados do banco de dados', error);
+        res.status(500).json({error: 'Erro ao obter dados do banco de dados'});
+    }
+})
+
+// Rota para inserção de pilotos
+app.post('path_da_rota', async (req, res) => { // TODO - adicionar path da rota
+    try {
+
+        const driverref = req.query.driverref
+        const number = req.query.number
+        const code = req.query.code
+        const forename = req.query.forename
+        const surname = req.query.surname
+        const dob = req.query.dob
+        const nationality = req.query.nationality
+
+        const query = "INSERT INTO DRIVER (driverref, 'number', code, forename, surname, dob, nationality) VALUES ($1, $2, $3, $4, $5, $6, $7);"
+        const result = await pool.query(query, [driverref, number, code, forename, surname, dob, nationality])
+
+        res.status(200).json(result.rows)
+
+    } catch(error) {
+        console.error('Erro ao inserir dados no banco de dados', error);
+        res.status(500).json({error: 'Erro ao inserir dados no banco de dados'});
+    }
+})
+
+// Rota para inserção de construtores
+app.post('path_da_rota', async (req, res) => { // TODO - adicionar path da rota
+    try {
+
+        const constructorref = req.query.constructorref
+        const name = req.query.name
+        const nationality = req.query.nationality
+        const url = req.query.url
+
+        const query = "INSERT INTO CONSTRUCTORS(constructorref, name, nationality, url) VALUES ($1, $2, $3, $4);"
+        const result = await pool.query(query, [constructorref, name, nationality, url])
+
+        res.status(200).json(result.rows)
+
+    } catch(error) {
+        console.error('Erro ao inserir dados no banco de dados', error);
+        res.status(500).json({error: 'Erro ao inserir dados no banco de dados'});
+    }
+})
+
 // // Exemplo de rota para obter dados do banco de dados
 // app.get('/dados', async (req, res) => {
 //     try {
