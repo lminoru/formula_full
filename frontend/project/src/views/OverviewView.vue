@@ -1,7 +1,7 @@
 <template>
     <v-card width="800" class="mx-auto">
         <v-card-title>
-            Bem vindo, {{ username }}
+            Bem vindaa, {{ username }}
         </v-card-title>
 
         <v-divider class="mb-4"></v-divider>
@@ -125,7 +125,12 @@ export default {
     },
     mounted() {
         // receber dados do back
-        this.username = "Jurandir"
+
+        this.username = this.$store.state.username;
+        console.log("mounted:");
+        console.log("store.username:", this.$store.state.username);
+        console.log("store.token:", this.$store.state.token);
+
         switch (this.$store.state.token) {
             case 'Administrador':
                 this.infos = [

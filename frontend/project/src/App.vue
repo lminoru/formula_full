@@ -38,11 +38,13 @@ nav a.router-link-exact-active {
 <script>
 export default {
   mounted() {
-    this.$store.commit('initialiseStore')
+    this.$store.commit('initialiseStoreToken');
+    this.$store.commit('initialiseStoreUsername')
   },
   methods: {
     logout() {
-      this.$store.commit('logout')
+      this.$store.commit('clearToken')
+      this.$store.commit('clearUsername')
       this.$router.push('/login');
     }
 

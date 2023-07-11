@@ -59,8 +59,10 @@ export default {
         // Por exemplo, fazer uma solicitação ao servidor para verificar as credenciais
         // Simulando uma resposta bem-sucedida
         const token = this.response.tipo;
+        const username = this.response.login;
 
-        this.$store.commit('login', token)
+        this.$store.commit('saveUsername', username);
+        this.$store.commit('saveToken', token);
 
         this.loading = false;
 
