@@ -13,11 +13,18 @@ const routes = [
     name: 'login',
     component: () => import('../views/LoginView.vue')
   },
-  //login page
+  //overview page
   {
     path: '/overview',
     name: 'overview',
     component: () => import('../views/OverviewView.vue'),
+    meta: { requiresAuth: true }
+  },
+  //report page
+  {
+    path: '/report',
+    name: 'report',
+    component: () => import('../views/ReportView.vue'),
     meta: { requiresAuth: true }
   }
 ]
@@ -29,7 +36,7 @@ const router = createRouter({
 
 router.beforeEach((to, from, next) => {
   const isAuthenticated = localStorage.getItem('token') !== null;
-  console.log(localStorage.getItem('token'));
+
   if (to.meta.requiresAuth && !isAuthenticated) {
     // Redireciona para a página de login se o usuário não estiver autenticado
     next('/login');

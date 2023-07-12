@@ -3,7 +3,8 @@
     <router-link to="/">Home</router-link> |
     <router-link v-if="!$store.state.token" to="/login">Login</router-link>
     <a v-if="$store.state.token" @click="logout" class="link-pointer">Logout</a> |
-    <router-link to="/overview">Overview</router-link>
+    <router-link to="/overview">Overview</router-link> |
+    <router-link to="/report">Report</router-link>
   </nav>
   <router-view />
 </template>
