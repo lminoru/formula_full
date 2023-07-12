@@ -46,8 +46,8 @@ export default {
                 .then(response => {
                     this.content = response.data
                     this.headers = [
-                        { title: 'Status', key: 'status' },
-                        { title: 'Contagem', key: 'count' }
+                        { title: 'Status', align: 'center', key: 'status' },
+                        { title: 'Contagem', align: 'center', key: 'count' }
                     ]
                     this.showTabel = true;
                 })
@@ -58,9 +58,9 @@ export default {
                 .then(response => {
                     this.content = response.data
                     this.headers = [
-                        { title: 'Nome Completo', align: 'start', key: 'full_name' },
-                        { title: 'Data de Nascimento', align: 'end', key: 'dob' },
-                        { title: 'Nacionalidade', align: 'end', key: 'nationality' },
+                        { title: 'Nome Completo', align: 'center', key: 'full_name' },
+                        { title: 'Data de Nascimento', align: 'center', key: 'dob' },
+                        { title: 'Nacionalidade', align: 'center', key: 'nationality' },
                     ]
                     this.showTabel = true;
                 })
@@ -68,24 +68,23 @@ export default {
 
         //  ESCUDERIA
         async consultarRel3() { //mockado
-            await axios.get('http://localhost:8090/relatorio_estados')
+            await axios.get('http://localhost:8090/pilotos_vitorias_escuderia?constructor=' + this.$store.state.username)
                 .then(response => {
                     this.content = response.data
                     this.headers = [
-                        { title: 'Status', key: 'status' },
-                        { title: 'Contagem', key: 'count' }
+                        { title: 'Nome', align: 'center', key: 'piloto_nome' },
+                        { title: 'Vitórias', align: 'center', key: 'quantidade_vitorias' }
                     ]
                     this.showTabel = true;
                 })
         },
         async consultarRel4() { //mockado
-            await axios.get('http://localhost:8090/piloto_correu_escuderia?constructor=ferrari&driver=Carlos')
+            await axios.get('http://localhost:8090/qtd_resultados_estados?constructor=' + this.$store.state.username)
                 .then(response => {
                     this.content = response.data
                     this.headers = [
-                        { title: 'Nome Completo', align: 'start', key: 'full_name' },
-                        { title: 'Data de Nascimento', align: 'end', key: 'dob' },
-                        { title: 'Nacionalidade', align: 'end', key: 'nationality' },
+                        { title: 'Status', align: 'center', key: 'status' },
+                        { title: 'Quantidade', align: 'center', key: 'quantidade' }
                     ]
                     this.showTabel = true;
                 })
@@ -93,24 +92,25 @@ export default {
 
         //  PILOTO
         async consultarRel5() { //mockado
-            await axios.get('http://localhost:8090/relatorio_estados')
+            await axios.get('http://localhost:8090/vitorias_piloto?driver=' + this.$store.state.username)
                 .then(response => {
                     this.content = response.data
                     this.headers = [
-                        { title: 'Status', key: 'status' },
-                        { title: 'Contagem', key: 'count' }
+                        { title: 'Ano', align: 'center', key: 'ano' },
+                        { title: 'Corrida', align: 'center', key: 'corrida' },
+                        { title: 'Quantidade de Vitórias', align: 'center', key: 'quantidade_vitorias' },
+
                     ]
                     this.showTabel = true;
                 })
         },
         async consultarRel6() { //mockado
-            await axios.get('http://localhost:8090/piloto_correu_escuderia?constructor=ferrari&driver=Carlos')
+            await axios.get('http://localhost:8090/piloto_resultados_estado?driver=' + this.$store.state.username)
                 .then(response => {
                     this.content = response.data
                     this.headers = [
-                        { title: 'Nome Completo', align: 'start', key: 'full_name' },
-                        { title: 'Data de Nascimento', align: 'end', key: 'dob' },
-                        { title: 'Nacionalidade', align: 'end', key: 'nationality' },
+                        { title: 'Status', align: 'center', key: 'status' },
+                        { title: 'Quantidade', align: 'center', key: 'quantidade' },
                     ]
                     this.showTabel = true;
                 })
