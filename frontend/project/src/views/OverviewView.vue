@@ -178,10 +178,18 @@ export default {
             this.insertInitDri = false;
         },
         cadastrarEscuderiaInit() {
-            this.insertInitEsc = true;
+            if (this.insertInitEsc) { //toggle effect
+                this.insertInitEsc = false;
+            } else {
+                this.insertInitEsc = true;
+            }
         },
         cadastrarPilotoInit() {
-            this.insertInitDri = true;
+            if (this.insertInitDri) { //toggle effect
+                this.insertInitDri = false;
+            } else {
+                this.insertInitDri = true;
+            }
         }
     },
     watch: {
