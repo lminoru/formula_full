@@ -113,9 +113,9 @@ export default {
             infos_api: null,
             itemsPerPage: 5,
             headers: [
-                { title: 'Nome Completo', align: 'start', key: 'full_name' },
-                { title: 'Data de Nascimento', align: 'end', key: 'dob' },
-                { title: 'Nacionalidade', align: 'end', key: 'nationality' },
+                { title: 'Nome Completo', align: 'center', key: 'full_name' },
+                { title: 'Data de Nascimento', align: 'center', key: 'dob' },
+                { title: 'Nacionalidade', align: 'center', key: 'nationality' },
             ],
             forename_driver: "",
             forenameFound: false,
