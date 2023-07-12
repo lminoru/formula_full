@@ -651,7 +651,89 @@ $$ LANGUAGE plpgsql;
 
 
 --tela3: relatório 2
+DROP FUNCTION IF EXISTS get_airports_by_city_name(TEXT);
+CREATE INDEX idx_airports_city_lat_long ON Airports (City, Latdeg, Longdeg);
+CREATE OR REPLACE FUNCTION get_airports_by_city_name(city_name_ref TEXT)
+RETURNS TABLE (
+    city_name TEXT,
+    iata_code CHAR(3),
+    airport_name TEXT,
+    airport_city TEXT,
+    distance NUMERIC,
+    airport_type CHAR(6)
+)
+AS $$
+BEGIN
+    RETURN QUERY
+    SELECT
+        city_name_ref,
+        airports.iata_code,
+        airports.airport_name,
+        airports.airport_city,
+        airports.distance,
+        airports.airport_type
+    FROM (
+        SELECT
+            a.IATACode AS iata_code,
+            a.Name AS airport_name,
+            a.City AS airport_city,
+            CAST(
+                111.045 * DEGREES(
+                    ACOS(
+                        COS(RADIANS(c.Latdeg)) *
+                        COS(RADIANS(a.Latdeg)) *
+                        COS(RADIANS(c.Longdeg) - RADIANS(a.Longdeg)) +
+                        SIN(RADIANS(c.Latdeg)) *
+                        SIN(RADIANS(a.Latdeg))
+                    )
+                ) AS NUMERIC
+            ) AS distance,
+            a.Type AS airport_type,
+            ROW_NUMBER() OVER (PARTITION BY a.City ORDER BY
+                111.045 * DEGREES(
+                    ACOS(
+                        COS(RADIANS(c.Latdeg)) *
+                        COS(RADIANS(a.Latdeg)) *
+                        COS(RADIANS(c.Longdeg) - RADIANS(a.Longdeg)) +
+                        SIN(RADIANS(c.Latdeg)) *
+                        SIN(RADIANS(a.Latdeg))
+                    )
+                )
+            ) AS row_number
+        FROM
+            Airports a
+        JOIN
+            (
+                SELECT DISTINCT
+                    City,
+                    Latdeg,
+                    Longdeg
+                FROM
+                    Airports
+                WHERE
+                    City = city_name_ref
+            ) c ON 1=1
+        WHERE
+            a.Type IN ('medium_airport', 'large_airport')
+            AND a.ISOCountry = 'BR'
+            AND (
+                111.045 * DEGREES(
+                    ACOS(
+                        COS(RADIANS(c.Latdeg)) *
+                        COS(RADIANS(a.Latdeg)) *
+                        COS(RADIANS(c.Longdeg) - RADIANS(a.Longdeg)) +
+                        SIN(RADIANS(c.Latdeg)) *
+                        SIN(RADIANS(a.Latdeg))
+                    )
+                )
+            ) <= 100
+    ) AS airports
+    WHERE
+        airports.row_number = 1;
 
+    RETURN;
+END;
+$$ LANGUAGE plpgsql;
 
 --tela3: relatório 3
 CREATE OR REPLACE FUNCTION listar_pilotos_vitorias_escuderia(escuderia_nome TEXT)

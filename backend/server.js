@@ -229,6 +229,22 @@ app.get('/relatorio_estados', async (req, res) => {
     }
 })
 
+// relatório 2
+// Rota para gerar relatório de estados e da quantidade de estados que ela possui
+app.get('/aeroportos_proximo_cidade', async (req, res) => {
+    try {
+        const city = req.query.city
+        const query = "SELECT * FROM get_airports_by_city_name($1);"
+        const result = await pool.query(query, [city])
+
+        res.status(200).json(result.rows)
+
+    } catch (error) {
+        console.error('Erro ao obter dados do banco de dados', error);
+        res.status(500).json({ error: 'Erro ao obter dados do banco de dados' });
+    }
+})
+
 // relatório 3
 // Rota para Listar os pilotos da escuderia, bem como a quantidade de vezes em
 // que cada um deles alcan¸cou a primeira posi¸c˜ao em uma corrida

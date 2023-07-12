@@ -54,13 +54,17 @@ export default {
         },
         async consultarRel2() { //mockado
             //this.city_name -> axios
-            await axios.get('http://localhost:8090/piloto_correu_escuderia?constructor=ferrari&driver=Carlos')
+            await axios.get('http://localhost:8090/aeroportos_proximo_cidade?city=' + this.city_name)
                 .then(response => {
                     this.content = response.data
                     this.headers = [
-                        { title: 'Nome Completo', align: 'center', key: 'full_name' },
-                        { title: 'Data de Nascimento', align: 'center', key: 'dob' },
-                        { title: 'Nacionalidade', align: 'center', key: 'nationality' },
+                        { title: 'Nome da cidade', align: 'center', key: 'city_name' },
+                        { title: 'IATA', align: 'center', key: 'iata_code' },
+                        { title: 'Nome do aeroporto', align: 'center', key: 'airport_name' },
+                        { title: 'Cidade do aeroporto', align: 'center', key: 'airport_city' },
+                        { title: 'Distância', align: 'center', key: 'distance' },
+                        { title: 'Tipo de Aeroporto', align: 'center', key: 'airport_type' },
+
                     ]
                     this.showTabel = true;
                 })
