@@ -648,3 +648,97 @@ BEGIN
     RETURN;
 END;
 $$ LANGUAGE plpgsql;
+
+
+--tela3: relatório 2
+
+
+--tela3: relatório 3
+CREATE OR REPLACE FUNCTION listar_pilotos_vitorias_escuderia(escuderia_nome TEXT)
+RETURNS TABLE (
+    piloto_nome TEXT,
+    quantidade_vitorias BIGINT
+) AS $$
+BEGIN
+    RETURN QUERY
+    SELECT CONCAT(d.forename, ' ', d.surname) AS piloto_nome,
+           COUNT(*) AS quantidade_vitorias
+    FROM Driver d
+    INNER JOIN Results r ON d.driverid = r.driverid
+    INNER JOIN Constructors c ON r.constructorid = c.constructorid
+    WHERE c.constructorref = escuderia_nome
+      AND r.positionorder = 1
+    GROUP BY piloto_nome;
+
+    RETURN NEXT;
+END;
+$$ LANGUAGE plpgsql;
+
+--tela3: relatório 4
+CREATE OR REPLACE FUNCTION listar_quantidade_resultados_por_status(escuderia_nome TEXT)
+RETURNS TABLE (
+    status TEXT,
+    quantidade BIGINT
+) AS $$
+BEGIN
+    RETURN QUERY
+    SELECT s.status,
+           COUNT(*) AS quantidade
+    FROM Results r
+    INNER JOIN Status s ON r.statusid = s.statusid
+    INNER JOIN Constructors c ON r.constructorid = c.constructorid
+    WHERE c.constructorref = escuderia_nome
+    GROUP BY s.status;
+
+    RETURN;
+END;
+$$ LANGUAGE plpgsql;
+
+--tela3: relatório 5
+CREATE INDEX idx_results_driverid ON Results (driverid);
+CREATE INDEX idx_results_raceid ON Results (raceid);
+CREATE INDEX idx_races_raceid ON Races (raceid);
+CREATE INDEX idx_driver_driverid ON Driver (driverid);
+DROP FUNCTION IF EXISTS listar_vitorias_piloto(piloto_ref TEXT);
+CREATE OR REPLACE FUNCTION listar_vitorias_piloto(piloto_ref TEXT)
+RETURNS TABLE (
+    ano INTEGER,
+    corrida TEXT,
+    quantidade_vitorias BIGINT
+) AS $$
+BEGIN
+    RETURN QUERY
+    SELECT Races.year AS ano,
+           Races.name AS corrida,
+		   COUNT(*) AS quantidade_vitorias
+	FROM Results
+        LEFT JOIN Races ON Results.raceid = Races.raceid
+        INNER JOIN Driver ON Results.driverid = Driver.driverid
+    WHERE Driver.driverref = piloto_ref
+    GROUP BY ROLLUP (Races.year, Races.name)
+	HAVING (Races.year IS NOT NULL OR Races.name IS NOT NULL)
+	 ORDER BY ano, quantidade_vitorias DESC;
+
+    RETURN;
+END;
+$$ LANGUAGE plpgsql;
+
+--tela3: relatório 6
+CREATE OR REPLACE FUNCTION listar_resultados_por_status(piloto_ref TEXT)
+RETURNS TABLE (
+    status TEXT,
+    quantidade BIGINT
+) AS $$
+BEGIN
+    RETURN QUERY
+    SELECT s.status, COUNT(*) AS quantidade
+    FROM Results r
+    INNER JOIN Status s ON r.statusid = s.statusid
+    INNER JOIN Driver d ON r.driverid = d.driverid
+    WHERE d.driverref = piloto_ref
+    GROUP BY s.status
+	ORDER BY quantidade DESC;
+
+    RETURN;
+END;
+$$ LANGUAGE plpgsql;
