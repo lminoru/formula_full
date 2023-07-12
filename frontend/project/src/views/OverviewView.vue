@@ -78,7 +78,7 @@
                 </v-row>
 
                 <v-row rows="12" md="4">
-                    <v-text-field v-model="insDriver.Surname" :counter="10" label="ForeSurnamename" required></v-text-field>
+                    <v-text-field v-model="insDriver.Surname" :counter="10" label="Surname" required></v-text-field>
                 </v-row>
 
                 <v-row rows="12" md="4">
@@ -124,6 +124,7 @@ export default {
             drivers: [],
             insEscuderia: { ConstructorRef: "", Name: "", Nationality: "", URL: "" },
             insDriver: { Driverref: "", Number: "", Code: "", Forename: "", Surname: "", Date_of_Birth: "", Nationality: "" },
+            status_cadastro: null
         }
 
     },
@@ -164,10 +165,16 @@ export default {
         },
         cadastrarEscuderia() {
             //enviar req ao banco
+            axios
+                .post('http://localhost:8090/inserir_escuderia?constructorref=' + this.insEscuderia.ConstructorRef + '&name=' + this.insEscuderia.Name + '&nationality=' + this.insEscuderia.Nationality + '&url=' + this.insEscuderia.URL)
+                .then(response => (this.status_cadastro = response.status))
             this.insertInitEsc = false;
         },
         cadastrarPiloto() {
-            //enviar req ao banco
+            //enviar req ao banco                                (driverid, driverref, number, code, forename, surname, dob, nationality)
+            axios
+                .post('http://localhost:8090/inserir_piloto?driverref=' + this.insDriver.Driverref + '&number=' + this.insDriver.Number + '&code=' + this.insDriver.Code + '&forename=' + this.insDriver.Forename + '&surname=' + this.insDriver.Surname + '&dob=' + this.insDriver.Date_of_Birth + '&nationality=' + this.insDriver.Nationality)
+                .then(response => (this.status_cadastro = response.status))
             this.insertInitDri = false;
         },
         cadastrarEscuderiaInit() {

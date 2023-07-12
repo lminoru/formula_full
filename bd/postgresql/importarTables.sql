@@ -430,8 +430,9 @@ FROM Constructors;
 
 
 --- FUNCÇÕES TRIGGERS
--- Função que verifica se o usuário a ser cadastrado já existe na tabela USERS
-CREATE OR REPLACE FUNCTION verificar_usuario_piloto_existente()
+
+-- Função para inserir ou atualizar o registro do piloto na tabela USERS
+CREATE OR REPLACE FUNCTION inserir_atualizar_usuario_piloto()
 RETURNS TRIGGER AS $$
 BEGIN
     -- Verifica se já existe um usuário com o login informado na tabela USERS
@@ -442,49 +443,12 @@ BEGIN
     ) THEN
         -- Lança uma exceção personalizada e cancela a inserção na tabela USERS
         RAISE EXCEPTION 'Já existe um usuário com o login informado.';
-    ELSE
+    ELSIF TG_OP = 'INSERT' THEN
         -- Se não houver usuário com o login informado, prossegue com a inserção
-        RETURN NEW;
-    END IF;
-END;
-$$ LANGUAGE plpgsql;
-
-
-
-
--- Função que verifica se o usuário a ser cadastrado já existe na tabela USERS
-CREATE OR REPLACE FUNCTION verificar_usuario_escuderia_existente()
-RETURNS TRIGGER AS $$
-BEGIN
-    -- Verifica se já existe um usuário com o login informado na tabela USERS
-    IF EXISTS (
-        SELECT 1
-        FROM USERS
-        WHERE Login = NEW.Constructorref
-    ) THEN
-        -- Lança uma exceção personalizada e cancela a inserção na tabela USERS
-        RAISE EXCEPTION 'Já existe um usuário com o login informado.';
-    ELSE
-        -- Se não houver usuário com o login informado, prossegue com a inserção
-        RETURN NEW;
-    END IF;
-END;
-$$ LANGUAGE plpgsql;
-
-
-
-
-
--- Função para inserir ou atualizar o registro do piloto na tabela USERS
-CREATE OR REPLACE FUNCTION inserir_atualizar_usuario_piloto()
-RETURNS TRIGGER AS $$
-BEGIN
-    PERFORM verificar_usuario_piloto_existente(); -- Chama a função de verificação antes de prosseguir
-
-    IF TG_OP = 'INSERT' THEN
         INSERT INTO USERS (Login, Password, Tipo, IdOriginal)
         VALUES (NEW.DriverRef, md5(NEW.DriverRef), 'Piloto', NEW.DriverId);
     ELSIF TG_OP = 'UPDATE' THEN
+        -- Se não houver usuário com o login informado, prossegue com o UPDATE
         UPDATE USERS
         SET Login = NEW.DriverRef,
             Password = md5(NEW.DriverRef)
@@ -495,25 +459,29 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-
-
-
-
 -- Função para inserir ou atualizar o registro da escuderia na tabela USERS
 CREATE OR REPLACE FUNCTION inserir_atualizar_usuario_escuderia()
 RETURNS TRIGGER AS $$
 BEGIN
-    PERFORM verificar_usuario_escuderia_existente(); -- Chama a função de verificação antes de prosseguir
-    
-    IF TG_OP = 'INSERT' THEN
-        INSERT INTO USERS (Login, Password, Tipo, IdOriginal)
-        VALUES (NEW.Constructorref, md5(NEW.Constructorref), 'Escuderia', NEW.ConstructorId);
+    -- Verifica se já existe um usuário com o login informado na tabela USERS
+    IF EXISTS (
+        SELECT 1
+        FROM USERS
+        WHERE Login = NEW.Constructorref
+    ) THEN
+        -- Lança uma exceção personalizada e cancela a inserção na tabela USERS
+        RAISE EXCEPTION 'Já existe um usuário com o login informado.';
+    ELSIF TG_OP = 'INSERT' THEN
+            INSERT INTO USERS (Login, Password, Tipo, IdOriginal)
+            VALUES (NEW.Constructorref, md5(NEW.Constructorref), 'Escuderia', NEW.ConstructorId);
     ELSIF TG_OP = 'UPDATE' THEN
         UPDATE USERS
         SET Login = NEW.Constructorref,
             Password = md5(NEW.Constructorref)
         WHERE IdOriginal = NEW.ConstructorId AND Tipo = 'Escuderia';
     END IF;
+    
+    
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;

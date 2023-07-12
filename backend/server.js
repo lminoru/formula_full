@@ -165,10 +165,10 @@ app.get('/piloto_correu_escuderia', async (req, res) => {
 app.post('/inserir_piloto', async (req, res) => {
     try {
 
-        query_id = "SELECT MAX(driverid) FROM Driver;"
-        const result_id = await pool.query(query)
+        const query_id = "SELECT MAX(driverid) FROM Driver;"
+        const result_id = await pool.query(query_id)
 
-        const driverid = result_id.rows[0] + 1
+        const driverid = result_id.rows[0].max + 1
         const driverref = req.query.driverref
         const number = req.query.number
         const code = req.query.code
@@ -177,10 +177,10 @@ app.post('/inserir_piloto', async (req, res) => {
         const dob = req.query.dob
         const nationality = req.query.nationality
 
-        const query = "INSERT INTO DRIVER (driverid, driverref, 'number', code, forename, surname, dob, nationality) VALUES ($1, $2, $3, $4, $5, $6, $7, $8);"
+        const query = "INSERT INTO DRIVER (driverid, driverref, number, code, forename, surname, dob, nationality) VALUES ($1, $2, $3, $4, $5, $6, $7, $8);"
         const result = await pool.query(query, [driverid, driverref, number, code, forename, surname, dob, nationality])
 
-        res.status(200).json(result.rows)
+        res.status(201).json(result.rows)
 
     } catch (error) {
         console.error('Erro ao inserir dados no banco de dados', error);
@@ -192,10 +192,10 @@ app.post('/inserir_piloto', async (req, res) => {
 app.post('/inserir_escuderia', async (req, res) => {
     try {
 
-        query_id = "SELECT MAX(constructorid) FROM Constructors;"
-        const result_id = await pool.query(query)
+        const query_id = "SELECT MAX(constructorid) FROM Constructors;"
+        const result_id = await pool.query(query_id)
 
-        const constructorid = result_id.rows[0] + 1
+        const constructorid = result_id.rows[0].max + 1
         const constructorref = req.query.constructorref
         const name = req.query.name
         const nationality = req.query.nationality
@@ -204,7 +204,7 @@ app.post('/inserir_escuderia', async (req, res) => {
         const query = "INSERT INTO CONSTRUCTORS(constructorid, constructorref, name, nationality, url) VALUES ($1, $2, $3, $4, $5);"
         const result = await pool.query(query, [constructorid, constructorref, name, nationality, url])
 
-        res.status(200).json(result.rows)
+        res.status(201).json(result.rows)
 
     } catch (error) {
         console.error('Erro ao inserir dados no banco de dados', error);
