@@ -1,7 +1,7 @@
 <template>
     <v-card width="800" class="mx-auto">
+        <v-text-field v-if="isAdm" v-model="city_name" :counter="10" label="Nome da cidade" required></v-text-field>
         <v-btn v-if="isAdm" @click="consultarRel1">Gerar Relatório 1</v-btn>
-        
         <v-btn v-if="isAdm" @click="consultarRel2">Gerar Relatório 2</v-btn>
         <v-btn v-if="isEsc" @click="consultarRel3">Gerar Relatório 3</v-btn>
         <v-btn v-if="isEsc" @click="consultarRel4">Gerar Relatório 4</v-btn>
@@ -24,7 +24,8 @@ export default {
             showTabel: false,
             headers: null,
             content: null,
-            itemsPerPage: 5
+            itemsPerPage: 5,
+            city_name: "",
         }
     },
     computed: {
@@ -52,6 +53,7 @@ export default {
                 })
         },
         async consultarRel2() { //mockado
+            //this.city_name -> axios
             await axios.get('http://localhost:8090/piloto_correu_escuderia?constructor=ferrari&driver=Carlos')
                 .then(response => {
                     this.content = response.data
