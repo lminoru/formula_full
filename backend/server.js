@@ -15,7 +15,7 @@ app.use((req, res, next) => {
 // Configuração do banco de dados PostgreSQL
 const pool = new Pool({
     user: 'postgres',
-    host: 'localhost',
+    host: 'data-base',
     database: 'postgres',
     password: 'app',
     port: 5432,

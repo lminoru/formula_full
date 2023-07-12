@@ -709,7 +709,7 @@ RETURNS TABLE (
 BEGIN
     RETURN QUERY
     SELECT Races.year AS ano,
-           Races.name AS corrida,
+           COALESCE(Races.name, 'TOTAL') AS corrida,
 		   COUNT(*) AS quantidade_vitorias
 	FROM Results
         LEFT JOIN Races ON Results.raceid = Races.raceid
