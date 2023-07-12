@@ -212,12 +212,83 @@ app.post('/inserir_escuderia', async (req, res) => {
     }
 })
 
+
+// relatório 1
 // Rota para gerar relatório de estados e da quantidade de estados que ela possui
 app.get('/relatorio_estados', async (req, res) => {
     try {
 
         const query = "SELECT s.Status, COUNT(*) AS Count FROM Results r INNER JOIN Status s ON r.StatusId = s.StatusId GROUP BY s.Status;"
         const result = await pool.query(query)
+
+        res.status(200).json(result.rows)
+
+    } catch (error) {
+        console.error('Erro ao obter dados do banco de dados', error);
+        res.status(500).json({ error: 'Erro ao obter dados do banco de dados' });
+    }
+})
+
+// relatório 3
+// Rota para Listar os pilotos da escuderia, bem como a quantidade de vezes em
+// que cada um deles alcan¸cou a primeira posi¸c˜ao em uma corrida
+app.get('/pilotos_vitorias_escuderia', async (req, res) => {
+    try {
+        const constructor = req.query.constructor
+        const query = "SELECT * FROM listar_pilotos_vitorias_escuderia($1)"
+        const result = await pool.query(query, [constructor])
+
+        res.status(200).json(result.rows)
+
+    } catch (error) {
+        console.error('Erro ao obter dados do banco de dados', error);
+        res.status(500).json({ error: 'Erro ao obter dados do banco de dados' });
+    }
+})
+
+// relatório 4
+// Rota para listar a quantidade de resultados por cada status, apresentando o
+// status e sua contagem, limitadas ao escopo de sua escuderia.
+app.get('/qtd_resultados_estados', async (req, res) => {
+    try {
+        const constructor = req.query.constructor
+        const query = "SELECT * FROM listar_quantidade_resultados_por_status($1);"
+        const result = await pool.query(query, [constructor])
+
+        res.status(200).json(result.rows)
+
+    } catch (error) {
+        console.error('Erro ao obter dados do banco de dados', error);
+        res.status(500).json({ error: 'Erro ao obter dados do banco de dados' });
+    }
+})
+
+// relatório 5
+// Rota para Consultar a quantidade de vitórias obtidas, apresentando o ano e a
+// corrida onde cada vitória foi alcançada, limitada ao escopo do piloto logado.
+app.get('/vitorias_piloto', async (req, res) => {
+    try {
+        const driver = req.query.driver
+        const query = "SELECT * FROM listar_vitorias_piloto($1);"
+        const result = await pool.query(query, [driver])
+
+        res.status(200).json(result.rows)
+
+    } catch (error) {
+        console.error('Erro ao obter dados do banco de dados', error);
+        res.status(500).json({ error: 'Erro ao obter dados do banco de dados' });
+    }
+})
+
+
+// relatório 6
+// Rota para listar a quantidade de resultados por cada status, apresentando o status
+// e sua contagem, limitada ao escopo do piloto logado.
+app.get('/piloto_resultados_estado', async (req, res) => {
+    try {
+        const driver = req.query.driver
+        const query = "SELECT * FROM listar_resultados_por_status($1);"
+        const result = await pool.query(query, [driver])
 
         res.status(200).json(result.rows)
 
