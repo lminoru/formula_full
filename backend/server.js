@@ -165,6 +165,10 @@ app.get('/piloto_correu_escuderia', async (req, res) => {
 app.post('/inserir_piloto', async (req, res) => {
     try {
 
+        query_id = "SELECT MAX(driverid) FROM Driver;"
+        const result_id = await pool.query(query)
+
+        const driverid = result_id.rows[0] + 1
         const driverref = req.query.driverref
         const number = req.query.number
         const code = req.query.code
@@ -173,8 +177,8 @@ app.post('/inserir_piloto', async (req, res) => {
         const dob = req.query.dob
         const nationality = req.query.nationality
 
-        const query = "INSERT INTO DRIVER (driverref, 'number', code, forename, surname, dob, nationality) VALUES ($1, $2, $3, $4, $5, $6, $7);"
-        const result = await pool.query(query, [driverref, number, code, forename, surname, dob, nationality])
+        const query = "INSERT INTO DRIVER (driverid, driverref, 'number', code, forename, surname, dob, nationality) VALUES ($1, $2, $3, $4, $5, $6, $7, $8);"
+        const result = await pool.query(query, [driverid, driverref, number, code, forename, surname, dob, nationality])
 
         res.status(200).json(result.rows)
 
@@ -188,13 +192,17 @@ app.post('/inserir_piloto', async (req, res) => {
 app.post('/inserir_escuderia', async (req, res) => {
     try {
 
+        query_id = "SELECT MAX(constructorid) FROM Constructors;"
+        const result_id = await pool.query(query)
+
+        const constructorid = result_id.rows[0] + 1
         const constructorref = req.query.constructorref
         const name = req.query.name
         const nationality = req.query.nationality
         const url = req.query.url
 
-        const query = "INSERT INTO CONSTRUCTORS(constructorref, name, nationality, url) VALUES ($1, $2, $3, $4);"
-        const result = await pool.query(query, [constructorref, name, nationality, url])
+        const query = "INSERT INTO CONSTRUCTORS(constructorid, constructorref, name, nationality, url) VALUES ($1, $2, $3, $4, $5);"
+        const result = await pool.query(query, [constructorid, constructorref, name, nationality, url])
 
         res.status(200).json(result.rows)
 
